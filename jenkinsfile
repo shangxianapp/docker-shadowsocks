@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+
+    options {
+        timestamps()
+    }
+
+    stages {
+        stage('Sync deploy') {
+            parallel {
+                stage('jp01') {
+                    steps {
+                        echo 'ok'
+                    }
+                }
+
+                stage('sg01') {
+                    steps {
+                        echo 'ok'
+                    }
+                }
+
+                stage('sg02') {
+                    steps {
+                        withCredentials([string(credentialsId: 'shangxianapp-shadowsocks-port', variable: 'port'), string(credentialsId: 'shangxianapp-shadowsocks-pwd', variable: 'pwd'), sshUserPrivateKey(credentialsId: 'shangxianapp-xiaowu-ssh-key', keyFileVariable: 'identity', passphraseVariable: '', usernameVariable: 'userName')]) {
+                            script {
+                                def remote = [:]
+                                remote.name = 'sg02'
+                                remote.host = 'sg02.ddns.shangxian.app'
+                                remote.allowAnyHosts = true
+                                remote.user = userName
+                                remote.identityFile = identity
+                                sshCommand remote: remote, command: "docker ps -aq --filter \"name=shadowsocks\" | xargs -r docker rm -f && docker run -d -e PASSWORD=${pwd} -p ${port}:8388 --name shadowsocks wuqz/sss:latest"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            deleteDir()
+        }
+    }
+}
