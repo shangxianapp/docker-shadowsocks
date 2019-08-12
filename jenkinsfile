@@ -16,7 +16,17 @@ pipeline {
 
                 stage('sg01') {
                     steps {
-                        echo 'ok'
+                        withCredentials([string(credentialsId: 'shangxianapp-shadowsocks-port', variable: 'port'), string(credentialsId: 'shangxianapp-shadowsocks-pwd', variable: 'pwd'), sshUserPrivateKey(credentialsId: 'shangxianapp-xiaowu-ssh-key', keyFileVariable: 'identity', passphraseVariable: '', usernameVariable: 'userName')]) {
+                            script {
+                                def remote = [:]
+                                remote.name = 'sg01'
+                                remote.host = 'sg01.ddns.shangxian.app'
+                                remote.allowAnyHosts = true
+                                remote.user = userName
+                                remote.identityFile = identity
+                                sshCommand remote: remote, command: "docker ps -aq --filter \"name=shadowsocks\" | xargs -r docker rm -f && docker run -d -e PASSWORD=${pwd} -p ${port}:8388 --name shadowsocks wuqz/sss:latest"
+                            }
+                        }
                     }
                 }
 
