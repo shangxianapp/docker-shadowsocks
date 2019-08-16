@@ -24,7 +24,7 @@ pipeline {
                                 remote.allowAnyHosts = true
                                 remote.user = userName
                                 remote.identityFile = identity
-                                sshCommand remote: remote, command: "docker ps -aq --filter \"name=shadowsocks\" | xargs -r docker rm -f && docker run --name shadowsocks -p ${port}:6443 -e SS_CONFIG=\"-s 0.0.0.0 -p 6443 -m aes-256-cfb -k ${pwd} --fast-open\" -e KCP_MODULE=\"kcpserver\" -e KCP_CONFIG=\"-t 127.0.0.1:6443 -l :6500 -mode fast2\" -e KCP_FLAG=\"true\" mritd/shadowsocks"
+                                sshCommand remote: remote, command: "docker ps -aq --filter \"name=shadowsocks\" | xargs -r docker rm -f && docker run -d --name shadowsocks -p ${port}:6443 -e SS_CONFIG=\"-s 0.0.0.0 -p 6443 -m aes-256-cfb -k ${pwd} --fast-open\" -e KCP_MODULE=\"kcpserver\" -e KCP_CONFIG=\"-t 127.0.0.1:6443 -l :6500 -mode fast2\" -e KCP_FLAG=\"true\" mritd/shadowsocks"
                             }
                         }
                     }
